@@ -1,0 +1,1847 @@
+{
+	"info": {
+		"_postman_id": "67dfcf29-6783-4f7d-b07b-00da7f1c4d28",
+		"name": "MedChat Python Backend API - Supabase Authentication",
+		"description": "Comprehensive Postman collection for testing the Python Flask backend.\n\n## Features Tested:\n\n✅ Authentication:\n\n- Email/Password: Register & Login (Supabase)\n    \n- Google OAuth: Automatic profile data fetching (Name, Email, Avatar, Phone, DOB)  \n    ✅ Conversation Management (CRUD operations)  \n    ✅ Chat with AI (Optimized 1-2s response with citations)  \n    ✅ Patient Memory (Vector-based medical entity storage)  \n    ✅ User Profile (Get/Update with auto-filled Google data)  \n    ✅ User Preferences (AI personalization settings)  \n    ✅ Vector Embeddings (384d local model, integrated)\n    \n\n## Authentication Methods:\n\n## EMAIL/PASSWORD\n\nEndpoint: POST /api/auth/register or /api/auth/login  \nSteps:\n\n1. Use 'Register New User' to create account\n    \n2. Or use 'Login with Email/Password' to login\n    \n3. Session cookie (app_session_id) auto-set\n    \n4. Profile data stored: Name, Email\n    \n\n### GOOGLE OAUTH (Supabase)\n\nEndpoint: POST /api/auth/supabase  \nSteps:\n\n1. Go to [http://localhost:5173](http://localhost:5173) in browser\n    \n2. Click 'Continue with Google'\n    \n3. Complete Google authentication\n    \n4. Frontend redirects to /auth/callback\n    \n5. Auto-extracts Supabase access token\n    \n6. Backend endpoint /auth/supabase processes token\n    \n7. Profile data auto-fetched and saved:  \n    ✓ Full Name (from Google account)  \n    ✓ Email (from Google account)  \n    ✓ Profile Picture (avatar_url)  \n    ✓ Phone Number (if available)  \n    ✓ Date of Birth (if available)\n    \n8. Session cookie created (1 year expiration)\n    \n\n## How to Use:\n\n1. Import this collection into Postman\n    \n2. Backend running: python app.py\n    \n3. Frontend running: npm run dev (optional, for Google OAuth)\n    \n4. Run requests in order (Health → Auth → Conversation → Chat)\n    \n5. CONVERSATION_ID auto-saved after creation\n    \n6. All tests validate responses automatically\n    \n\n## Testing Workflow:\n\n### Test 1: Email/Password Flow\n\n1. Run 'Health Check' - verify backend is running\n    \n2. Run 'Supabase: Signup with Email/Password' - creates user\n    \n3. Run 'Get Current User (/me)' - verify user is logged in\n    \n4. Run 'Supabase: Create Conversation' - start a chat\n    \n5. Run 'Send Message' - get AI response\n    \n6. Run 'Supabase: Logout' - end session\n    \n\n### Test 2: Google OAuth Flow\n\n1. Open [http://localhost:5173](http://localhost:5173) in browser\n    \n2. Click 'Continue with Google'\n    \n3. Complete Google authentication\n    \n4. Browser redirects to /auth/callback (no 404 error!)\n    \n5. Session automatically created\n    \n6. Go to /profile - see auto-filled data\n    \n7. Test API endpoints with browser cookies\n    \n\n## Important Notes:\n\n- Supabase Auth: Uses JWT tokens (no Firebase!)\n    \n- Session Cookie: app_session_id (HTTP-only, 1 year)\n    \n- CORS: Configured for localhost development\n    \n- Profile Auto-Population: Works with Google OAuth only\n    \n- Vector Search: Integrated in chat (not separate endpoint)\n    \n- Patient Memory: Empty for new users (fills with medical conversations)\n    \n\nCreated for: Aneesh (Manager)  \nUpdated by: Sujoy  \nDate: 2025-10-29  \nVersion: 2.0 (Supabase Auth)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "30912834"
+	},
+	"item": [
+		{
+			"name": "1. Health Check",
+			"item": [
+				{
+					"name": "Health Check",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has status and message\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('status');",
+									"    pm.expect(jsonData).to.have.property('message');",
+									"    pm.expect(jsonData.status).to.equal('ok');",
+									"});",
+									"",
+									"pm.test(\"Backend is running\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.message).to.include('MedChat');",
+									"});",
+									"",
+									"console.log('✅ Backend is healthy and running on Supabase!');"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/health",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"health"
+							]
+						},
+						"description": "Check if the backend server is running and healthy. Verify Supabase connectivity."
+					},
+					"response": [
+						{
+							"name": "Health Check",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{BASE_URL}}/api/health",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"api",
+										"health"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Server",
+									"value": "Werkzeug/3.1.3 Python/3.12.11"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 29 Oct 2025 06:36:43 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "93"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "http://localhost:3000"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"MedChat Python Backend is running\",\n    \"status\": \"ok\",\n    \"version\": \"1.0.0\"\n}"
+						}
+					]
+				}
+			],
+			"description": "Basic health check endpoint to verify backend is running with Supabase."
+		},
+		{
+			"name": "2. Authentication (Supabase)",
+			"item": [
+				{
+					"name": "Supabase: Signup with Email/Password",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201 (Created)\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Response has user ID and email\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('id');",
+									"    pm.expect(jsonData).to.have.property('email');",
+									"});",
+									"",
+									"pm.test(\"Session cookie (app_session_id) is set\", function () {",
+									"    pm.expect(pm.cookies.has('app_session_id')).to.be.true;",
+									"});",
+									"",
+									"if (pm.response.code === 201) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set('USER_ID', jsonData.id);",
+									"    console.log('\\n✅ USER REGISTRATION SUCCESS');",
+									"    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');",
+									"    console.log('ID:', jsonData.id);",
+									"    console.log('Email:', jsonData.email);",
+									"    console.log('Session Cookie: ✓ app_session_id set');",
+									"    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');",
+									"    console.log('\\n📝 NOTE: If this email was previously deleted,');",
+									"    console.log('   all old login history was automatically cleaned up!');",
+									"    console.log('   Check /api/auth/me to verify fresh session ✓\\n');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"name\": \"Your Name\", \"email\": \"yourname@example.com\", \"password\": \"Password123\"}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/auth/register",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						},
+						"description": "🔴 CRITICAL: Passwords MUST NOT contain special characters like @, !, #, $, %, &, etc. Use ONLY letters, numbers, and hyphens. Example: ✅ Password123, MyPass-2025, Test1234 | ❌ Pass@123, Secret!, MyP#ss. \n\n✅ NEW FIX: If you previously deleted an account with this email, it will be automatically cleaned up. You can now re-register with the same email! Old login history is removed. Change the email to a unique value each test (e.g., user1@example.com, user2@example.com). Status should be 201 Created."
+					},
+					"response": [
+						{
+							"name": "Supabase: Signup with Email/Password",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Test User\",\n    \"email\": \"testuser@medchat.com\",\n    \"password\": \"SecurePassword123!\"\n}"
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/api/auth/register",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"api",
+										"auth",
+										"register"
+									]
+								}
+							},
+							"status": "CREATED",
+							"code": 201,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Server",
+									"value": "Werkzeug/3.1.3 Python/3.12.11"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 29 Oct 2025 06:36:57 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "63"
+								},
+								{
+									"key": "Set-Cookie",
+									"value": "app_session_id=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJvcGVuSWQiOiJ1c2VyX213SmlCT3pBIiwibmFtZSI6IlRlc3QgVXNlciIsImV4cCI6MTc5MzI1NTgxNywiaWF0IjoxNzYxNzE5ODE3fQ.49D6w0Ih700mwdcaYDF07eLPjZDl4zQGzP2FDynDzcU; Expires=Thu, 29 Oct 2026 06:36:57 GMT; Max-Age=31536000; HttpOnly; Path=/; SameSite=Lax"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "http://localhost:3000"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"email\": \"testuser@medchat.com\",\n    \"id\": \"user_mwJiBOzA\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Supabase: Login with Email/Password",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has user data\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('id');",
+									"    pm.expect(jsonData).to.have.property('email');",
+									"});",
+									"",
+									"pm.test(\"Session cookie (app_session_id) is set\", function () {",
+									"    pm.expect(pm.cookies.has('app_session_id')).to.be.true;",
+									"});",
+									"",
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set('USER_ID', jsonData.id);",
+									"    console.log('✅ Login successful via Supabase Email/Password');",
+									"    console.log('   ID:', jsonData.id);",
+									"    console.log('   Email:', jsonData.email);",
+									"    console.log('   Session cookie set ✓');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"email\": \"yourname@example.com\", \"password\": \"Password123\"}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/auth/login",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "Login with existing email and password credentials via local authentication. Status should be 200 OK. Session cookie (app_session_id) is automatically set and records this login in history."
+					},
+					"response": [
+						{
+							"name": "Supabase: Login with Email/Password",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"testuser@medchat.com\",\n    \"password\": \"SecurePassword123!\"\n}"
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/api/auth/login",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"api",
+										"auth",
+										"login"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Server",
+									"value": "Werkzeug/3.1.3 Python/3.12.11"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 29 Oct 2025 06:37:20 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "63"
+								},
+								{
+									"key": "Set-Cookie",
+									"value": "app_session_id=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJvcGVuSWQiOiJ1c2VyX213SmlCT3pBIiwibmFtZSI6IlRlc3QgVXNlciIsImV4cCI6MTc5MzI1NTgzOSwiaWF0IjoxNzYxNzE5ODM5fQ.WhWCND6A4uC_-At53JyDwdmJr9zD8F3Myl3OoPtYejE; Expires=Thu, 29 Oct 2026 06:37:19 GMT; Max-Age=31536000; HttpOnly; Path=/; SameSite=Lax"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "http://localhost:3000"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"email\": \"testuser@medchat.com\",\n    \"id\": \"user_mwJiBOzA\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Supabase: Google OAuth (Process Token)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has user data\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('success');",
+									"    pm.expect(jsonData).to.have.property('user');",
+									"    pm.expect(jsonData.user).to.have.property('id');",
+									"});",
+									"",
+									"pm.test(\"Auto-fetched Google profile data\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.user).to.have.property('email');",
+									"    pm.expect(jsonData.user).to.have.property('name');",
+									"    pm.expect(jsonData.user).to.have.property('profileImage');",
+									"    pm.expect(jsonData.user).to.have.property('phoneNumber');",
+									"    pm.expect(jsonData.user).to.have.property('dateOfBirth');",
+									"});",
+									"",
+									"pm.test(\"Session cookie set\", function () {",
+									"    pm.expect(pm.cookies.has('app_session_id')).to.be.true;",
+									"});",
+									"",
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set('USER_ID', jsonData.user.id);",
+									"    console.log('\\n✅ GOOGLE OAUTH SUCCESS!');",
+									"    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');",
+									"    console.log('User ID:', jsonData.user.id);",
+									"    console.log('Name:', jsonData.user.name);",
+									"    console.log('Email:', jsonData.user.email);",
+									"    console.log('Phone:', jsonData.user.phoneNumber || '(not provided)');",
+									"    console.log('DOB:', jsonData.user.dateOfBirth || '(not provided)');",
+									"    console.log('Avatar:', jsonData.user.profileImage ? '✓ Fetched' : '(not provided)');",
+									"    console.log('Session Cookie:', '✓ app_session_id set');",
+									"    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\\n');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"accessToken\": \"PASTE_SUPABASE_ACCESS_TOKEN_HERE\",\n    \"instructions\": \"To test Google OAuth:\\n1. Go to http://localhost:5173/login in your browser\\n2. Click 'Continue with Google'\\n3. Complete Google authentication\\n4. Frontend redirects to /auth/callback\\n5. Session is automatically created\\n6. Backend: /api/auth/supabase endpoint receives token\\n7. Profile data auto-fetched from Google\\n8. Run 'Get Current User (/me)' to verify login\\n\\nFor manual testing in Postman:\\n1. Open browser DevTools (F12)\\n2. Go to Network tab\\n3. Click 'Continue with Google'\\n4. Find POST request to /api/auth/supabase\\n5. Copy 'accessToken' value from request body\\n6. Paste it in this request and send\"\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/auth/supabase",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"supabase"
+							]
+						},
+						"description": "Process Supabase access token from Google OAuth. Auto-fetches and saves profile data: Name, Email, Avatar, Phone, DOB. Session created with 1-year expiration."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Current User (/me)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has currentUser and activeLogins\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('currentUser');",
+									"    pm.expect(jsonData).to.have.property('activeLogins');",
+									"    pm.expect(jsonData).to.have.property('totalActiveSessions');",
+									"});",
+									"",
+									"pm.test(\"Current user has valid data\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.currentUser).to.have.property('id');",
+									"    pm.expect(jsonData.currentUser).to.have.property('email');",
+									"    pm.expect(jsonData.currentUser).to.have.property('role');",
+									"});",
+									"",
+									"pm.test(\"Active logins is an array\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.activeLogins).to.be.an('array');",
+									"    if (jsonData.activeLogins.length > 0) {",
+									"        pm.expect(jsonData.activeLogins[0]).to.have.property('userId');",
+									"        pm.expect(jsonData.activeLogins[0]).to.have.property('email');",
+									"        pm.expect(jsonData.activeLogins[0]).to.have.property('isActive');",
+									"    }",
+									"});",
+									"",
+									"console.log('✅ Multi-user login history loaded');",
+									"console.log('   Total active sessions:', pm.response.json().totalActiveSessions);",
+									"console.log('   Logged-in users:', pm.response.json().activeLogins.map(l => l.email).join(', '));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/auth/me",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"me"
+							]
+						},
+						"description": "Get current authenticated user and ALL active login sessions across all user accounts. Returns both single-user details and full login history. Shows multi-user logins with status, IP, timestamps, and user agents. Works with email/password logins or any authenticated session."
+					},
+					"response": [
+						{
+							"name": "Get Current User (/me)",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{BASE_URL}}/api/auth/me",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"api",
+										"auth",
+										"me"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Server",
+									"value": "Werkzeug/3.1.3 Python/3.12.11"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 29 Oct 2025 06:37:59 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1256"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "http://localhost:3000"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"currentUser\": {\n        \"id\": \"user_mwJiBOzA\",\n        \"email\": \"thesujoydey@gmail.com\",\n        \"name\": \"Sujoy\",\n        \"role\": \"user\",\n        \"loginMethod\": \"local\",\n        \"profileImage\": null,\n        \"lastSignedIn\": \"2025-11-03T10:45:00.123456\"\n    },\n    \"activeLogins\": [\n        {\n            \"id\": \"login_abc123\",\n            \"userId\": \"user_mwJiBOzA\",\n            \"email\": \"thesujoydey@gmail.com\",\n            \"name\": \"Sujoy\",\n            \"loginMethod\": \"local\",\n            \"profileImage\": null,\n            \"action\": \"login\",\n            \"timestamp\": \"2025-11-03T10:45:00.123456\",\n            \"isActive\": true,\n            \"ipAddress\": \"192.168.1.100\",\n            \"userAgent\": \"Mozilla/5.0 (Windows NT 10.0; Win64; x64)\"\n        },\n        {\n            \"id\": \"login_def456\",\n            \"userId\": \"user_xyz789\",\n            \"email\": \"kundan@gmail.com\",\n            \"name\": \"Kundan\",\n            \"loginMethod\": \"local\",\n            \"profileImage\": null,\n            \"action\": \"signup\",\n            \"timestamp\": \"2025-11-03T09:30:00.654321\",\n            \"isActive\": true,\n            \"ipAddress\": \"192.168.1.101\",\n            \"userAgent\": \"Mozilla/5.0 (Windows NT 10.0; Win64; x64)\"\n        }\n    ],\n    \"totalActiveSessions\": 2\n}"
+						}
+					]
+				},
+				{
+					"name": "Supabase: Logout",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Logout successful\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.be.true;",
+									"});",
+									"",
+									"console.log('✅ Logged out successfully - Supabase session cleared');"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/auth/logout",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"logout"
+							]
+						},
+						"description": "Logout current user and clear session cookie. Works with both Email/Password and Google OAuth."
+					},
+					"response": []
+				},
+				{
+					"name": "🗑️ DELETE ACCOUNT (Permanent)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Delete successful\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.be.true;",
+									"});",
+									"",
+									"if (pm.response.code === 200) {",
+									"    console.log('\\n🗑️  ACCOUNT PERMANENTLY DELETED');",
+									"    console.log('════════════════════════════════════');",
+									"    console.log('✓ Account removed from Supabase');",
+									"    console.log('✓ All conversations deleted');",
+									"    console.log('✓ All messages deleted');",
+									"    console.log('✓ All patient memory deleted');",
+									"    console.log('✓ All login history deleted');",
+									"    console.log('✓ Session cleared');",
+									"    console.log('════════════════════════════════════\\n');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/auth/delete-account",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"delete-account"
+							]
+						}
+					},
+					"description": "🗑️ PERMANENTLY DELETE current user account and ALL associated data from Supabase.\n\nDELETES:\n✓ User account record\n✓ All conversations\n✓ All messages\n✓ All patient memory entries\n✓ All user preferences\n✓ All login history\n✓ Session cookie\n\n⚠️ WARNING: This action is PERMANENT and IRREVERSIBLE!\n\nUSE CASES:\n- Clean up test accounts created from Postman testing\n- Completely remove account from Supabase database\n- No data recovery possible after deletion\n\nAfter deletion, you can re-register with the same email."
+				}
+			],
+			"description": "Supabase authentication endpoints. Supports Email/Password signup/login and Google OAuth with automatic profile data fetching."
+		},
+		{
+			"name": "3. Conversations",
+			"item": [
+				{
+					"name": "Supabase: Create New Conversation",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201 (Created)\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Response has conversation data\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('conversation');",
+									"    pm.expect(jsonData.conversation).to.have.property('id');",
+									"    pm.expect(jsonData.conversation).to.have.property('title');",
+									"});",
+									"",
+									"if (pm.response.code === 201) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set('CONVERSATION_ID', jsonData.conversation.id);",
+									"    pm.environment.set('CONVERSATION_ID', jsonData.conversation.id);",
+									"    console.log('✅ Conversation created:', jsonData.conversation.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Diabetes Management Discussion\"\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/conversations",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"conversations"
+							]
+						},
+						"description": "Create a new conversation with optional title. Conversation ID automatically saved."
+					},
+					"response": [
+						{
+							"name": "Supabase: Create New Conversation",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"title\": \"Diabetes Management Discussion\"\n}"
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/api/conversations",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"api",
+										"conversations"
+									]
+								}
+							},
+							"status": "CREATED",
+							"code": 201,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Server",
+									"value": "Werkzeug/3.1.3 Python/3.12.11"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 29 Oct 2025 06:38:18 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "248"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "http://localhost:3000"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"conversation\": {\n        \"createdAt\": \"2025-10-29T06:38:13.273339\",\n        \"id\": \"conv_0CDBmIZH\",\n        \"isGuest\": false,\n        \"title\": \"Diabetes Management Discussion\",\n        \"updatedAt\": \"2025-10-29T06:38:13.273339\",\n        \"userId\": \"user_mwJiBOzA\"\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "List All Conversations",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response is an array\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"});",
+									"",
+									"pm.test(\"Conversations have required fields\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.length > 0) {",
+									"        pm.expect(jsonData[0]).to.have.property('id');",
+									"        pm.expect(jsonData[0]).to.have.property('title');",
+									"        pm.expect(jsonData[0]).to.have.property('createdAt');",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/conversations",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"conversations"
+							]
+						},
+						"description": "Get all conversations for the authenticated Supabase user."
+					},
+					"response": [
+						{
+							"name": "List All Conversations",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{BASE_URL}}/api/conversations",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"api",
+										"conversations"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Server",
+									"value": "Werkzeug/3.1.3 Python/3.12.11"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 29 Oct 2025 06:38:31 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "232"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "http://localhost:3000"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								}
+							],
+							"cookie": [],
+							"body": "[\n    {\n        \"createdAt\": \"2025-10-29T06:38:13.273339\",\n        \"id\": \"conv_0CDBmIZH\",\n        \"isGuest\": false,\n        \"title\": \"Diabetes Management Discussion\",\n        \"updatedAt\": \"2025-10-29T06:38:13.273339\",\n        \"userId\": \"user_mwJiBOzA\"\n    }\n]"
+						}
+					]
+				},
+				{
+					"name": "Get Conversation with Messages",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has conversation and messages\", function () {",
+									"    if (pm.response.code === 200) {",
+									"        var jsonData = pm.response.json();",
+									"        pm.expect(jsonData).to.have.property('conversation');",
+									"        pm.expect(jsonData).to.have.property('messages');",
+									"        pm.expect(jsonData.messages).to.be.an('array');",
+									"    } else {",
+									"        console.log('⚠️ Conversation not found. Run \\\"Create New Conversation\\\" first!');",
+									"        pm.expect.fail('Conversation ID not valid. Create a conversation first.');",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/conversations/{{CONVERSATION_ID}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"conversations",
+								"{{CONVERSATION_ID}}"
+							]
+						},
+						"description": "Get a specific conversation with all its messages."
+					},
+					"response": [
+						{
+							"name": "Get Conversation with Messages",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{BASE_URL}}/api/conversations/{{CONVERSATION_ID}}",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"api",
+										"conversations",
+										"{{CONVERSATION_ID}}"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Server",
+									"value": "Werkzeug/3.1.3 Python/3.12.11"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 29 Oct 2025 06:38:44 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "266"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "http://localhost:3000"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"conversation\": {\n        \"createdAt\": \"2025-10-29T06:38:13.273339\",\n        \"id\": \"conv_0CDBmIZH\",\n        \"isGuest\": false,\n        \"title\": \"Diabetes Management Discussion\",\n        \"updatedAt\": \"2025-10-29T06:38:13.273339\",\n        \"userId\": \"user_mwJiBOzA\"\n    },\n    \"messages\": []\n}"
+						}
+					]
+				},
+				{
+					"name": "Update Conversation Title",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Update successful\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.be.true;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Updated: Diabetes Management & Treatment Options\"\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/conversations/{{CONVERSATION_ID}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"conversations",
+								"{{CONVERSATION_ID}}"
+							]
+						},
+						"description": "Update the title of an existing conversation."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Conversation",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Delete successful\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.be.true;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/conversations/{{CONVERSATION_ID}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"conversations",
+								"{{CONVERSATION_ID}}"
+							]
+						},
+						"description": "Delete a conversation and all its messages."
+					},
+					"response": []
+				}
+			],
+			"description": "Conversation management endpoints for Supabase authenticated users."
+		},
+		{
+			"name": "4. Chat (AI Responses)",
+			"item": [
+				{
+					"name": "Send Message (Optimized)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has message content\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('message');",
+									"    pm.expect(jsonData.message).to.have.property('content');",
+									"    pm.expect(jsonData.message.content).to.be.a('string');",
+									"    pm.expect(jsonData.message.content.length).to.be.above(0);",
+									"});",
+									"",
+									"pm.test(\"Response has citations array\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('citations');",
+									"});",
+									"",
+									"pm.test(\"PERFORMANCE: Response time under 3 seconds\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(3000);",
+									"});",
+									"",
+									"console.log('⚡ Response time:', pm.response.responseTime + 'ms');",
+									"console.log('✅ AI Response received with', pm.response.json().citations?.length || 0, 'citations');"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"conversationId\": \"{{CONVERSATION_ID}}\",\n    \"message\": \"What are the main symptoms of Type 2 diabetes?\",\n    \"model\": \"sonar\"\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/chat/send",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"chat",
+								"send"
+							]
+						},
+						"description": "Send a message and get AI response with citations. Optimized for 1-2 second response time using vector embeddings."
+					},
+					"response": [
+						{
+							"name": "Send Message (Optimized)",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"conversationId\": \"{{CONVERSATION_ID}}\",\n    \"message\": \"What are the main symptoms of Type 2 diabetes?\",\n    \"model\": \"sonar\"\n}"
+								},
+								"url": {
+									"raw": "{{BASE_URL}}/api/chat/send",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"api",
+										"chat",
+										"send"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Server",
+									"value": "Werkzeug/3.1.3 Python/3.12.11"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 29 Oct 2025 06:39:21 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "10287"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "http://localhost:3000"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"citations\": [\n        \"https://www.nhs.uk/conditions/type-2-diabetes/symptoms/\",\n        \"https://www.cdc.gov/diabetes/about/about-type-2-diabetes.html\",\n        \"https://www.yalemedicine.org/conditions/type-2-diabetes-symptoms-treatments\",\n        \"https://diabetes.org/about-diabetes/warning-signs-symptoms\",\n        \"https://www.niddk.nih.gov/health-information/diabetes/overview/symptoms-causes\",\n        \"https://www.mayoclinic.org/diseases-conditions/type-2-diabetes/symptoms-causes/syc-20351193\",\n        \"https://www.cdc.gov/diabetes/signs-symptoms/index.html\",\n        \"https://www.youtube.com/watch?v=PTAVuDwSQvE\",\n        \"https://my.clevelandclinic.org/health/diseases/21501-type-2-diabetes\",\n        \"https://medlineplus.gov/diabetes.html\"\n    ],\n    \"message\": {\n        \"citations\": [\n            \"https://www.nhs.uk/conditions/type-2-diabetes/symptoms/\",\n            \"https://www.cdc.gov/diabetes/about/about-type-2-diabetes.html\",\n            \"https://www.yalemedicine.org/conditions/type-2-diabetes-symptoms-treatments\",\n            \"https://diabetes.org/about-diabetes/warning-signs-symptoms\",\n            \"https://www.niddk.nih.gov/health-information/diabetes/overview/symptoms-causes\",\n            \"https://www.mayoclinic.org/diseases-conditions/type-2-diabetes/symptoms-causes/syc-20351193\",\n            \"https://www.cdc.gov/diabetes/signs-symptoms/index.html\",\n            \"https://www.youtube.com/watch?v=PTAVuDwSQvE\",\n            \"https://my.clevelandclinic.org/health/diseases/21501-type-2-diabetes\",\n            \"https://medlineplus.gov/diabetes.html\"\n        ],\n        \"content\": \"The main symptoms of **Type 2 diabetes** include:\\n\\n- **Increased thirst** and feeling very thirsty all the time  \\n- **Frequent urination**, often including waking at night to urinate  \\n- **Feeling very tired or fatigued**  \\n- **Increased hunger** or appetite  \\n- **Unintentional weight loss**  \\n- **Blurred vision**  \\n- **Slow-healing cuts or wounds**  \\n- **Frequent infections**, including skin infections or thrush  \\n- **Numbness or tingling in the hands or feet** (peripheral neuropathy)  \\n- Sometimes, areas of darkened skin, especially in armpits and neck  \\n\\nThese symptoms often develop gradually and may be mild at first, so many people may not notice them immediately[1][3][4][6][7][9][10]. Because symptoms can be subtle and develop over years, it is important to be aware of risk factors and get tested if symptoms or risks are present.\\n\\nIf you or someone you know experiences these symptoms, consulting a healthcare professional for evaluation and blood sugar testing is essential for early diagnosis and management.\",\n        \"conversationId\": \"conv_0CDBmIZH\",\n        \"createdAt\": \"2025-10-29T06:39:21.281840+00:00\",\n        \"id\": \"msg_1761719961281\",\n        \"model\": \"sonar\",\n        \"role\": \"assistant\",\n        \"searchResults\": [\n            {\n                \"date\": \"2025-02-19\",\n                \"snippet\": \"Symptoms of type 2 diabetes · feeling very tired · peeing more than usual · feeling thirsty all the time · losing weight without trying to.\",\n                \"title\": \"Symptoms of type 2 diabetes and how it's diagnosed - NHS\",\n                \"url\": \"https://www.nhs.uk/conditions/type-2-diabetes/symptoms/\"\n            },\n            {\n                \"date\": \"2024-05-15\",\n                \"snippet\": \"In type 2 diabetes, your body doesn't use insulin well and can't keep blood sugar at normal levels. It can be prevented or delayed with ...\",\n                \"title\": \"Type 2 Diabetes - CDC\",\n                \"url\": \"https://www.cdc.gov/diabetes/about/about-type-2-diabetes.html\"\n            },\n            {\n                \"date\": \"2023-01-11\",\n                \"snippet\": \"What are the symptoms of type 2 diabetes? · Increased urination · Waking at night to urinate · Increased thirst · Feeling tired · Weakness · Increased appetite and ...\",\n                \"title\": \"Type 2 Diabetes: Symptoms and Treatments - Yale Medicine\",\n                \"url\": \"https://www.yalemedicine.org/conditions/type-2-diabetes-symptoms-treatments\"\n            },\n            {\n                \"date\": \"2024-05-01\",\n                \"snippet\": \"Warning Signs and Symptoms · Urinating often · Feeling very thirsty · Feeling very hungry—even though you are eating · Extreme fatigue · Blurry vision · Cuts/bruises ...\",\n                \"title\": \"Diabetes Symptoms & Early Warning Signs\",\n                \"url\": \"https://diabetes.org/about-diabetes/warning-signs-symptoms\"\n            },\n            {\n                \"date\": \"2025-08-11\",\n                \"snippet\": \"Common symptoms of diabetes include increased thirst and urination, fatigue, and hunger. People with any type of diabetes may have these and other symptoms.\",\n                \"title\": \"Symptoms & Causes of Diabetes - NIDDK\",\n                \"url\": \"https://www.niddk.nih.gov/health-information/diabetes/overview/symptoms-causes\"\n            },\n            {\n                \"date\": \"2025-02-27\",\n                \"snippet\": \"Symptoms · More thirst. · More urination. · More hunger. · Weight loss. · Tiredness. · Blurred vision. · Slow-healing sores. · Frequent infections.\",\n                \"title\": \"Type 2 diabetes - Symptoms and causes - Mayo Clinic\",\n                \"url\": \"https://www.mayoclinic.org/diseases-conditions/type-2-diabetes/symptoms-causes/syc-20351193\"\n            },\n            {\n                \"date\": \"2024-05-15\",\n                \"snippet\": \"Type 1 diabetes symptoms can develop in just a few weeks or months and can be severe. · Type 2 diabetes symptoms can take years to develop.\",\n                \"title\": \"Symptoms of Diabetes - CDC\",\n                \"url\": \"https://www.cdc.gov/diabetes/signs-symptoms/index.html\"\n            },\n            {\n                \"date\": \"2022-11-14\",\n                \"snippet\": \"Diabetes Specialist Nurse, Vicki Alabraba, explains what type 2 diabetes is, how to reduce your risk and the signs and symptoms to look out ...\",\n                \"title\": \"Type 2 Diabetes - What is it, signs and symptoms, and reducing your ...\",\n                \"url\": \"https://www.youtube.com/watch?v=PTAVuDwSQvE\"\n            },\n            {\n                \"date\": \"2025-09-11\",\n                \"snippet\": \"Symptoms include increased thirst, frequent urination, fatigue, increased hunger, slow healing and Symptoms of Type 2 diabetes tend to develop slowly over time.\",\n                \"title\": \"Type 2 Diabetes: What It Is, Causes, Symptoms & Treatment\",\n                \"url\": \"https://my.clevelandclinic.org/health/diseases/21501-type-2-diabetes\"\n            },\n            {\n                \"date\": \"2025-02-03\",\n                \"snippet\": \"Feeling very thirsty · Feeling very hungry · Urinating (peeing) more often, including at night · Fatigue · Blurry vision · Numbness or tingling in ...\",\n                \"title\": \"Type 2 Diabetes - MedlinePlus\",\n                \"url\": \"https://medlineplus.gov/diabetes.html\"\n            }\n        ]\n    },\n    \"searchResults\": [\n        {\n            \"date\": \"2025-02-19\",\n            \"snippet\": \"Symptoms of type 2 diabetes · feeling very tired · peeing more than usual · feeling thirsty all the time · losing weight without trying to.\",\n            \"title\": \"Symptoms of type 2 diabetes and how it's diagnosed - NHS\",\n            \"url\": \"https://www.nhs.uk/conditions/type-2-diabetes/symptoms/\"\n        },\n        {\n            \"date\": \"2024-05-15\",\n            \"snippet\": \"In type 2 diabetes, your body doesn't use insulin well and can't keep blood sugar at normal levels. It can be prevented or delayed with ...\",\n            \"title\": \"Type 2 Diabetes - CDC\",\n            \"url\": \"https://www.cdc.gov/diabetes/about/about-type-2-diabetes.html\"\n        },\n        {\n            \"date\": \"2023-01-11\",\n            \"snippet\": \"What are the symptoms of type 2 diabetes? · Increased urination · Waking at night to urinate · Increased thirst · Feeling tired · Weakness · Increased appetite and ...\",\n            \"title\": \"Type 2 Diabetes: Symptoms and Treatments - Yale Medicine\",\n            \"url\": \"https://www.yalemedicine.org/conditions/type-2-diabetes-symptoms-treatments\"\n        },\n        {\n            \"date\": \"2024-05-01\",\n            \"snippet\": \"Warning Signs and Symptoms · Urinating often · Feeling very thirsty · Feeling very hungry—even though you are eating · Extreme fatigue · Blurry vision · Cuts/bruises ...\",\n            \"title\": \"Diabetes Symptoms & Early Warning Signs\",\n            \"url\": \"https://diabetes.org/about-diabetes/warning-signs-symptoms\"\n        },\n        {\n            \"date\": \"2025-08-11\",\n            \"snippet\": \"Common symptoms of diabetes include increased thirst and urination, fatigue, and hunger. People with any type of diabetes may have these and other symptoms.\",\n            \"title\": \"Symptoms & Causes of Diabetes - NIDDK\",\n            \"url\": \"https://www.niddk.nih.gov/health-information/diabetes/overview/symptoms-causes\"\n        },\n        {\n            \"date\": \"2025-02-27\",\n            \"snippet\": \"Symptoms · More thirst. · More urination. · More hunger. · Weight loss. · Tiredness. · Blurred vision. · Slow-healing sores. · Frequent infections.\",\n            \"title\": \"Type 2 diabetes - Symptoms and causes - Mayo Clinic\",\n            \"url\": \"https://www.mayoclinic.org/diseases-conditions/type-2-diabetes/symptoms-causes/syc-20351193\"\n        },\n        {\n            \"date\": \"2024-05-15\",\n            \"snippet\": \"Type 1 diabetes symptoms can develop in just a few weeks or months and can be severe. · Type 2 diabetes symptoms can take years to develop.\",\n            \"title\": \"Symptoms of Diabetes - CDC\",\n            \"url\": \"https://www.cdc.gov/diabetes/signs-symptoms/index.html\"\n        },\n        {\n            \"date\": \"2022-11-14\",\n            \"snippet\": \"Diabetes Specialist Nurse, Vicki Alabraba, explains what type 2 diabetes is, how to reduce your risk and the signs and symptoms to look out ...\",\n            \"title\": \"Type 2 Diabetes - What is it, signs and symptoms, and reducing your ...\",\n            \"url\": \"https://www.youtube.com/watch?v=PTAVuDwSQvE\"\n        },\n        {\n            \"date\": \"2025-09-11\",\n            \"snippet\": \"Symptoms include increased thirst, frequent urination, fatigue, increased hunger, slow healing and Symptoms of Type 2 diabetes tend to develop slowly over time.\",\n            \"title\": \"Type 2 Diabetes: What It Is, Causes, Symptoms & Treatment\",\n            \"url\": \"https://my.clevelandclinic.org/health/diseases/21501-type-2-diabetes\"\n        },\n        {\n            \"date\": \"2025-02-03\",\n            \"snippet\": \"Feeling very thirsty · Feeling very hungry · Urinating (peeing) more often, including at night · Fatigue · Blurry vision · Numbness or tingling in ...\",\n            \"title\": \"Type 2 Diabetes - MedlinePlus\",\n            \"url\": \"https://medlineplus.gov/diabetes.html\"\n        }\n    ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Available AI Models",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response is an array of models\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"    pm.expect(jsonData.length).to.be.above(0);",
+									"});",
+									"",
+									"pm.test(\"Models have required fields\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData[0]).to.have.property('id');",
+									"    pm.expect(jsonData[0]).to.have.property('name');",
+									"    pm.expect(jsonData[0]).to.have.property('category');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/chat/models",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"chat",
+								"models"
+							]
+						},
+						"description": "Get list of available AI models (sonar, sonar-pro, etc.)."
+					},
+					"response": [
+						{
+							"name": "Get Available AI Models",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{BASE_URL}}/api/chat/models",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"api",
+										"chat",
+										"models"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Server",
+									"value": "Werkzeug/3.1.3 Python/3.12.11"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 29 Oct 2025 06:39:32 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "555"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "http://localhost:3000"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								}
+							],
+							"cookie": [],
+							"body": "[\n    {\n        \"category\": \"search\",\n        \"description\": \"Fast & Cost-effective\",\n        \"id\": \"sonar\",\n        \"name\": \"Sonar\"\n    },\n    {\n        \"category\": \"search\",\n        \"description\": \"Recommended for Medical Use\",\n        \"id\": \"sonar-pro\",\n        \"name\": \"Sonar Pro\",\n        \"recommended\": true\n    },\n    {\n        \"category\": \"reasoning\",\n        \"description\": \"Advanced Analysis\",\n        \"id\": \"sonar-reasoning\",\n        \"name\": \"Sonar Reasoning\"\n    },\n    {\n        \"category\": \"reasoning\",\n        \"description\": \"Expert Level\",\n        \"id\": \"sonar-reasoning-pro\",\n        \"name\": \"Sonar Reasoning Pro\"\n    }\n]"
+						}
+					]
+				}
+			],
+			"description": "Chat endpoints for AI-powered responses with citations. Works for Supabase authenticated users."
+		},
+		{
+			"name": "5. Patient Memory",
+			"item": [
+				{
+					"name": "Get Patient Memory",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response is an array\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"});",
+									"",
+									"pm.test(\"Memory entries have required fields\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.length > 0) {",
+									"        pm.expect(jsonData[0]).to.have.property('id');",
+									"        pm.expect(jsonData[0]).to.have.property('entityType');",
+									"        pm.expect(jsonData[0]).to.have.property('entityName');",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/memory/patient",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"memory",
+								"patient"
+							]
+						},
+						"description": "Get all patient memory entries for the Supabase authenticated user."
+					},
+					"response": [
+						{
+							"name": "Get Patient Memory",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{BASE_URL}}/api/memory/patient",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"api",
+										"memory",
+										"patient"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Server",
+									"value": "Werkzeug/3.1.3 Python/3.12.11"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 29 Oct 2025 06:39:46 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "4898"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "http://localhost:3000"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								}
+							],
+							"cookie": [],
+							"body": "[\n    {\n        \"conversationId\": \"conv_0CDBmIZH\",\n        \"createdAt\": \"2025-10-29T06:39:43.151666\",\n        \"entityName\": \"Areas of darkened skin in armpits and neck\",\n        \"entityType\": \"symptom\",\n        \"id\": \"pm_HFaY_Roo\",\n        \"metadata\": null,\n        \"relationships\": [\n            {\n                \"target\": \"Type 2 diabetes\",\n                \"type\": \"symptom_of\"\n            }\n        ],\n        \"updatedAt\": \"2025-10-29T06:39:43.151666\",\n        \"userId\": \"user_mwJiBOzA\"\n    },\n    {\n        \"conversationId\": \"conv_0CDBmIZH\",\n        \"createdAt\": \"2025-10-29T06:39:42.879941\",\n        \"entityName\": \"Numbness or tingling in the hands or feet\",\n        \"entityType\": \"symptom\",\n        \"id\": \"pm_qPWyhOmL\",\n        \"metadata\": {\n            \"alternateName\": \"peripheral neuropathy\"\n        },\n        \"relationships\": [\n            {\n                \"target\": \"Type 2 diabetes\",\n                \"type\": \"symptom_of\"\n            }\n        ],\n        \"updatedAt\": \"2025-10-29T06:39:42.879941\",\n        \"userId\": \"user_mwJiBOzA\"\n    },\n    {\n        \"conversationId\": \"conv_0CDBmIZH\",\n        \"createdAt\": \"2025-10-29T06:39:42.609529\",\n        \"entityName\": \"Frequent infections\",\n        \"entityType\": \"symptom\",\n        \"id\": \"pm_8bRSKbP4\",\n        \"metadata\": {\n            \"examples\": [\n                \"skin infections\",\n                \"thrush\"\n            ]\n        },\n        \"relationships\": [\n            {\n                \"target\": \"Type 2 diabetes\",\n                \"type\": \"symptom_of\"\n            }\n        ],\n        \"updatedAt\": \"2025-10-29T06:39:42.609529\",\n        \"userId\": \"user_mwJiBOzA\"\n    },\n    {\n        \"conversationId\": \"conv_0CDBmIZH\",\n        \"createdAt\": \"2025-10-29T06:39:42.336914\",\n        \"entityName\": \"Slow-healing cuts or wounds\",\n        \"entityType\": \"symptom\",\n        \"id\": \"pm_LZwx-xdh\",\n        \"metadata\": null,\n        \"relationships\": [\n            {\n                \"target\": \"Type 2 diabetes\",\n                \"type\": \"symptom_of\"\n            }\n        ],\n        \"updatedAt\": \"2025-10-29T06:39:42.336914\",\n        \"userId\": \"user_mwJiBOzA\"\n    },\n    {\n        \"conversationId\": \"conv_0CDBmIZH\",\n        \"createdAt\": \"2025-10-29T06:39:42.067865\",\n        \"entityName\": \"Blurred vision\",\n        \"entityType\": \"symptom\",\n        \"id\": \"pm_0kWG_g57\",\n        \"metadata\": null,\n        \"relationships\": [\n            {\n                \"target\": \"Type 2 diabetes\",\n                \"type\": \"symptom_of\"\n            }\n        ],\n        \"updatedAt\": \"2025-10-29T06:39:42.067865\",\n        \"userId\": \"user_mwJiBOzA\"\n    },\n    {\n        \"conversationId\": \"conv_0CDBmIZH\",\n        \"createdAt\": \"2025-10-29T06:39:41.798511\",\n        \"entityName\": \"Unintentional weight loss\",\n        \"entityType\": \"symptom\",\n        \"id\": \"pm_s2lRX-9A\",\n        \"metadata\": null,\n        \"relationships\": [\n            {\n                \"target\": \"Type 2 diabetes\",\n                \"type\": \"symptom_of\"\n            }\n        ],\n        \"updatedAt\": \"2025-10-29T06:39:41.798511\",\n        \"userId\": \"user_mwJiBOzA\"\n    },\n    {\n        \"conversationId\": \"conv_0CDBmIZH\",\n        \"createdAt\": \"2025-10-29T06:39:41.530044\",\n        \"entityName\": \"Increased hunger or appetite\",\n        \"entityType\": \"symptom\",\n        \"id\": \"pm_4_2lWipN\",\n        \"metadata\": null,\n        \"relationships\": [\n            {\n                \"target\": \"Type 2 diabetes\",\n                \"type\": \"symptom_of\"\n            }\n        ],\n        \"updatedAt\": \"2025-10-29T06:39:41.530044\",\n        \"userId\": \"user_mwJiBOzA\"\n    },\n    {\n        \"conversationId\": \"conv_0CDBmIZH\",\n        \"createdAt\": \"2025-10-29T06:39:41.260704\",\n        \"entityName\": \"Feeling very tired or fatigued\",\n        \"entityType\": \"symptom\",\n        \"id\": \"pm_v9akJcTf\",\n        \"metadata\": null,\n        \"relationships\": [\n            {\n                \"target\": \"Type 2 diabetes\",\n                \"type\": \"symptom_of\"\n            }\n        ],\n        \"updatedAt\": \"2025-10-29T06:39:41.260704\",\n        \"userId\": \"user_mwJiBOzA\"\n    },\n    {\n        \"conversationId\": \"conv_0CDBmIZH\",\n        \"createdAt\": \"2025-10-29T06:39:40.988415\",\n        \"entityName\": \"Frequent urination\",\n        \"entityType\": \"symptom\",\n        \"id\": \"pm__sFOnIzK\",\n        \"metadata\": {\n            \"additionalDetail\": \"May include waking at night to urinate\"\n        },\n        \"relationships\": [\n            {\n                \"target\": \"Type 2 diabetes\",\n                \"type\": \"symptom_of\"\n            }\n        ],\n        \"updatedAt\": \"2025-10-29T06:39:40.988415\",\n        \"userId\": \"user_mwJiBOzA\"\n    },\n    {\n        \"conversationId\": \"conv_0CDBmIZH\",\n        \"createdAt\": \"2025-10-29T06:39:40.718647\",\n        \"entityName\": \"Increased thirst\",\n        \"entityType\": \"symptom\",\n        \"id\": \"pm_5v6PiTq3\",\n        \"metadata\": null,\n        \"relationships\": [\n            {\n                \"target\": \"Type 2 diabetes\",\n                \"type\": \"symptom_of\"\n            }\n        ],\n        \"updatedAt\": \"2025-10-29T06:39:40.718647\",\n        \"userId\": \"user_mwJiBOzA\"\n    },\n    {\n        \"conversationId\": \"conv_0CDBmIZH\",\n        \"createdAt\": \"2025-10-29T06:39:40.448058\",\n        \"entityName\": \"Type 2 diabetes\",\n        \"entityType\": \"condition\",\n        \"id\": \"pm_P2tKaF70\",\n        \"metadata\": {\n            \"diagnosis\": \"chronic metabolic disorder\",\n            \"importantFacts\": [\n                \"Symptoms often develop gradually and may be mild at first\",\n                \"Symptoms can develop over years and may go unnoticed\",\n                \"Important to be aware of risk factors and get tested if symptoms are present\"\n            ]\n        },\n        \"relationships\": null,\n        \"updatedAt\": \"2025-10-29T06:39:40.448058\",\n        \"userId\": \"user_mwJiBOzA\"\n    }\n]"
+						}
+					]
+				},
+				{
+					"name": "Clear All Patient Memory",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Clear successful\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.be.true;",
+									"});",
+									"",
+									"console.log('✅ All patient memory cleared');"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/memory/patient/clear",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"memory",
+								"patient",
+								"clear"
+							]
+						},
+						"description": "Clear all patient memory for the Supabase authenticated user."
+					},
+					"response": []
+				}
+			],
+			"description": "Patient memory management endpoints with vector-based storage."
+		},
+		{
+			"name": "6. User Profile",
+			"item": [
+				{
+					"name": "Get User Profile",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Profile has user data\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData) {",
+									"        pm.expect(jsonData).to.have.property('id');",
+									"        pm.expect(jsonData).to.have.property('name');",
+									"        pm.expect(jsonData).to.have.property('email');",
+									"    }",
+									"});",
+									"",
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    console.log('\\n✅ PROFILE LOADED');",
+									"    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━');",
+									"    console.log('Name:', jsonData.name);",
+									"    console.log('Email:', jsonData.email);",
+									"    console.log('Phone:', jsonData.phone || '(not set)');",
+									"    console.log('DOB:', jsonData.dateOfBirth || '(not set)');",
+									"    console.log('Avatar:', jsonData.profileImage ? '✓ Set' : '(not set)');",
+									"    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━\\n');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/profile",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"profile"
+							]
+						},
+						"description": "Get Supabase authenticated user profile information. Auto-populated with Google data if authenticated via OAuth."
+					},
+					"response": [
+						{
+							"name": "Get User Profile",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{BASE_URL}}/api/profile",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"api",
+										"profile"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Server",
+									"value": "Werkzeug/3.1.3 Python/3.12.11"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 29 Oct 2025 06:40:05 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "184"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "http://localhost:3000"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"address\": null,\n    \"bio\": null,\n    \"dateOfBirth\": null,\n    \"email\": \"testuser@medchat.com\",\n    \"id\": \"user_mwJiBOzA\",\n    \"name\": \"Test User\",\n    \"phone\": null,\n    \"profileImage\": null\n}"
+						}
+					]
+				},
+				{
+					"name": "Update User Profile",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Update successful\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.be.true;",
+									"});",
+									"",
+									"console.log('✅ Profile updated successfully');"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"John Doe\",\n    \"bio\": \"Software engineer interested in healthcare technology\",\n    \"phone\": \"+1 (555) 123-4567\",\n    \"dateOfBirth\": \"1990-01-15\",\n    \"address\": \"123 Main St, City, State\"\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/profile",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"profile"
+							]
+						},
+						"description": "Update Supabase user profile information. Can update fields auto-populated from Google OAuth."
+					},
+					"response": []
+				}
+			],
+			"description": "User profile management endpoints with Supabase integration."
+		},
+		{
+			"name": "7. User Preferences",
+			"item": [
+				{
+					"name": "Get User Preferences",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Preferences have required fields\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('preferredModel');",
+									"    pm.expect(jsonData).to.have.property('theme');",
+									"    pm.expect(jsonData).to.have.property('ageGroup');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/preferences",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"preferences"
+							]
+						},
+						"description": "Get Supabase user AI preferences for personalized responses."
+					},
+					"response": [
+						{
+							"name": "Get User Preferences",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{BASE_URL}}/api/preferences",
+									"host": [
+										"{{BASE_URL}}"
+									],
+									"path": [
+										"api",
+										"preferences"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "",
+							"header": [
+								{
+									"key": "Server",
+									"value": "Werkzeug/3.1.3 Python/3.12.11"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 29 Oct 2025 06:40:21 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "218"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "http://localhost:3000"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Connection",
+									"value": "close"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"ageGroup\": \"middle-aged\",\n    \"includeMedicalTerms\": true,\n    \"languageComplexity\": \"moderate\",\n    \"preferredModel\": \"sonar-pro\",\n    \"responseLength\": \"concise\",\n    \"responseStyle\": \"professional\",\n    \"theme\": \"light\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Update User Preferences",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Update successful\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.be.true;",
+									"});",
+									"",
+									"console.log('✅ Preferences updated successfully');"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"preferredModel\": \"sonar\",\n    \"theme\": \"dark\",\n    \"ageGroup\": \"middle-aged\",\n    \"responseStyle\": \"professional\",\n    \"languageComplexity\": \"moderate\",\n    \"includeMedicalTerms\": true,\n    \"responseLength\": \"concise\"\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/preferences",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"preferences"
+							]
+						},
+						"description": "Update Supabase user AI preferences for personalized AI responses."
+					},
+					"response": []
+				}
+			],
+			"description": "User preferences management for Supabase authenticated users."
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"console.log('🚀 Supabase Auth Request:', pm.info.requestName);"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"pm.test(\"Response time is acceptable\", function () {",
+					"    pm.expect(pm.response.responseTime).to.be.below(10000);",
+					"});"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "BASE_URL",
+			"value": "http://localhost:5000",
+			"type": "string"
+		},
+		{
+			"key": "CONVERSATION_ID",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "USER_ID",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "MEMORY_ID",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
